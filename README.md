@@ -1,78 +1,124 @@
-
 # Brightly
 
-Brightly is a personal reflection and motivation platform designed to help users capture meaningful moments, revisit them with intention, and transform past experiences into daily motivation and long-term self-awareness.
+Brightly is a personal reflection and motivation platform that helps users capture meaningful moments, reflect on them over time, and transform past experiences into grounded motivation and long-term self-awareness.
 
-At its core, Brightly is about memory-driven growth. Instead of generic quotes or surface-level journaling, it uses a user's own memories as the foundation for motivation, reflection, and yearly insights.
+Unlike traditional journaling or quote-based motivation apps, Brightly uses **a user’s own memories as the only source of insight**.
 
 ---
 
-## Essence of the Project
+## What Makes Brightly Different
 
-Most productivity and wellness tools focus on goals, streaks, or external motivation. Brightly takes a different approach:
+Most wellness and productivity tools rely on:
 
-- Personal memories are treated as the most authentic source of motivation
-- Emotional continuity is prioritized over gamification
-- Reflection is encouraged without pressure
-- Long-term personal narrative matters more than short-term engagement
+* streaks
+* goals
+* external motivation
+
+Brightly focuses instead on:
+
+* memory-driven reflection
+* emotional continuity over time
+* zero pressure to perform or “be consistent”
+* narrative understanding rather than metrics
 
 Brightly is not about doing more.
 It is about understanding yourself better through what you have already lived.
 
 ---
 
-## What Brightly Does
+## Core Features
 
-### Capture Moments
-Users store short personal memories — thoughts, events, feelings, or realizations — without worrying about structure or polish.
+### 1. Memory Capture
 
-These memories act as raw emotional signals collected over time.
+Users store short personal memories — thoughts, events, feelings, or realizations — without any enforced structure.
 
----
-
-### Memory-Based Daily Motivation
-Instead of random motivational quotes, Brightly:
-- Analyzes a user’s past memories
-- Extracts emotional context and recurring patterns
-- Generates short daily motivation grounded strictly in the user’s own experiences
-
-This makes motivation feel personal and emotionally honest.
+These memories become the **raw emotional data** of the system.
 
 ---
 
-### Yearly Recap and Reflection
-Brightly generates an end-of-year recap that:
-- Summarizes total memories captured
-- Identifies recurring emotional themes
-- Highlights peak moments
-- Builds a reflective narrative of the year
+### 2. Memory-Based Motivation
 
-The recap is designed to feel like a calm personal letter rather than analytics.
+Instead of random quotes, Brightly:
+
+* retrieves relevant past memories
+* analyzes emotional tone and recurring themes
+* generates short motivational reflections grounded strictly in user history
+
+Motivation is always **personal, contextual, and honest**.
 
 ---
 
-## Technical Architecture
+### 3. Yearly Recap
+
+Brightly generates a year-end recap that:
+
+* summarizes memories captured
+* detects recurring emotional patterns
+* highlights meaningful moments
+* presents insights as a calm narrative, not analytics
+
+The recap is designed to feel like a **personal letter to yourself**.
+
+---
+
+## Tech Stack (As Implemented)
 
 ### Frontend
-- Next.js (App Router)
-- React
-- Tailwind CSS
-- Motion-based UI with soft transitions
-- Minimal, calm visual design
+
+* Next.js (App Router)
+* React
+* Tailwind CSS
+* Framer Motion
+* Firebase Authentication
+* Firestore
 
 ### Backend
-- FastAPI
-- Firebase Authentication
-- Firestore for structured storage
-- Vector database for semantic memory retrieval
-- Retrieval-augmented generation pipeline
 
-### Local AI Stack
-- Ollama
-- LLaMA 3 running fully locally
-- No external AI APIs required
+* FastAPI
+* Python
+* Firebase Admin SDK
+* Vector embeddings + semantic retrieval
+* Retrieval-Augmented Generation (RAG)
 
-All AI-generated content is derived only from user-provided memories.
+### AI Layer
+
+* Gemini (via `google.genai`) **or**
+* Local LLMs (Ollama) depending on configuration
+
+AI responses are generated **only from user memories**.
+
+---
+
+## Project Structure
+
+```text
+brightly/
+│
+├── backend/
+│   ├── app/
+│   │   ├── ai/            # LLM + prompting logic
+│   │   ├── api/           # FastAPI routes
+│   │   ├── core/          # app startup & config
+│   │   ├── db/            # firestore / vector db logic
+│   │   ├── schemas/       # pydantic models
+│   │   ├── services/      # business logic
+│   │   ├── utils/
+│   │   └── main.py        # FastAPI entrypoint
+│   ├── requirements.txt
+│   ├── credentials.json   # Get it from Firebase Console (Project Settings → Service Accounts, Generate new private key, a file will be downloaded, rename it to credentials.json)
+│   └── .env.example
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   ├── types/
+│   ├── public/
+│   ├── package.json
+│   └── .env.example
+│
+└── README.md
+```
 
 ---
 
@@ -80,158 +126,212 @@ All AI-generated content is derived only from user-provided memories.
 
 ### Prerequisites
 
-Make sure the following are installed:
+Make sure you have:
 
-- Node.js (v18 or later)
-- npm or pnpm
-- Python 3.9 or later
-- Git
-- Firebase project (Firestore + Authentication enabled)
+* Node.js **18+**
+* npm or pnpm
+* Python **3.10+** (recommended)
+* Git
+* Firebase project (Auth + Firestore enabled)
+* Pinecone Index
+
+perfect — here’s a **short, clean, README-ready version**.
+no fluff, no over-explaining, just what a user needs.
 
 ---
 
-### 1. Clone the Repository
+## LLM Provider
+
+Brightly supports **Gemini** and **local LLMs (Ollama)**.
+By default, it uses **Gemini**.
+
+Configure in `backend/app/.env` while configuring backend environment variables:
+
+```env
+LLM_PROVIDER=gemini   # gemini | local
+```
+
+**Gemini (default):**
+
+```env
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+**Local (Ollama):**
+
+```env
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3
+```
+
+If `LLM_PROVIDER` is not set, Gemini is used automatically.
+
+---
+
+## Pinecone Setup
+
+Brightly uses Pinecone to store vector embeddings of user memories.
+
+### 1. Create Account & API Key
+
+1. Go to [https://www.pinecone.io](https://www.pinecone.io) and sign in
+2. Open **API Keys** → **Create API Key**
+3. Copy the key
+4. This key will be later used while configuring the environment variables of the backend.
+
+---
+
+### 2. Create Index
+
+In **Indexes → Create Index**, use:
+
+* **Name**: `brightly-memories`
+* **Dimensions**: `768`
+* **Metric**: `cosine`
+  
+---
+
+## 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/mayanks0ni/brightly.git
 cd brightly
 ```
 
 ---
 
-### 2. Frontend Setup
+## 2. Frontend Setup
 
+Step 1: Install Dependencies
 ```bash
 cd frontend
 npm install
 ```
+Step 2: Environment Variables
 
-Create a `.env.local` file in the `frontend` directory and add:
-
+```bash
+cp .env.example .env.local
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=your_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
+Add
+- Firebase Config
+- Backend API Base URL
 
-Run the frontend:
-
+Step 3: Run frontend
 ```bash
 npm run dev
 ```
 
-The frontend will be available at:
-`http://localhost:3000`
+Frontend runs at:
+
+```
+http://localhost:3000
+```
 
 ---
 
-### 3. Backend Setup
-
+## 3. Backend Setup (FastAPI)
+Step 1: Create a Virtual Environment
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate
+```
+Step 2: Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
-
-Create a `.env` file inside the `backend` directory:
-
+Step 3: Environment Variables
+```bash
+cp app/.env.example app/.env
 ```
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_CREDENTIALS_PATH=path_to_service_account.json
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3
-```
+Fill in required values such as:
+- AI API keys (Gemini / local model config)
+- Firebase Config & Pinecone API Key
 
-Start the backend server:
+Step 4: Run Backend Server
 
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
-Backend runs on:
-`http://127.0.0.1:8000`
+Backend will be available at:
+
+```
+http://127.0.0.1:8000
+```
 
 ---
 
-### 4. Setting Up Ollama and LLaMA 3
+## 4. Optional: Ollama + Local LLM Setup
 
-Install Ollama:
+If using local models instead of Gemini:
 
-- macOS:
-  Download from https://ollama.com and install
+Install Ollama
+[https://ollama.com](https://ollama.com)
 
-- Linux:
-  Follow instructions on the Ollama website
-
-After installation, pull the LLaMA 3 model:
+Pull model:
 
 ```bash
 ollama pull llama3
 ```
 
-Start Ollama (it usually runs automatically):
+Start Ollama:
 
 ```bash
 ollama serve
 ```
 
-Verify it is working:
+Verify:
 
 ```bash
 ollama run llama3
 ```
 
-The backend communicates with Ollama locally via:
-`http://localhost:11434`
+Backend communicates locally at:
 
-No internet connection is required for AI responses once the model is downloaded.
+```
+http://localhost:11434
+```
 
 ---
 
-### 5. Vector Database Setup
+## 5. Vector Memory Storage
 
-The project uses a vector database to store embeddings of memories.
+* Each memory is embedded at write time
+* Stored with `userId` and timestamp
+* Retrieval is strictly user-scoped
+* AI never sees global or shared data
 
-Ensure:
-- Embeddings are generated only from user memory text
-- Metadata includes userId and timestamp
-- Retrieval is filtered strictly by user
-
-This ensures privacy and accurate memory grounding.
+This ensures **privacy and grounding**.
 
 ---
 
 ## Design Philosophy
 
-Brightly is built with the following principles:
+* Calm over stimulation
+* Reflection over reaction
+* Narrative over metrics
+* Privacy over scale
 
-- Calm over stimulation
-- Reflection over reaction
-- Narrative over metrics
-- Privacy over scale
-
-AI is used as a quiet assistant, not a decision-maker.
+AI is a quiet assistant — not an optimizer or judge.
 
 ---
 
 ## Who This Is For
 
 Brightly is for people who:
-- Care about reflection but dislike rigid journaling
-- Want motivation that feels personal
-- Prefer quiet progress
-- Value long-term self-understanding
+
+* want reflection without rigidity
+* dislike streaks and pressure
+* value emotional continuity
+* prefer personal insight over productivity hacks
 
 ---
 
 ## Project Status
 
 Brightly is actively evolving.
-The core is intentionally simple to protect its philosophy while allowing future depth.
+The foundation is intentionally minimal to protect its philosophy.
 
 ---
 
@@ -239,4 +339,3 @@ The core is intentionally simple to protect its philosophy while allowing future
 
 Brightly does not try to optimize you.
 It helps you notice patterns you have already lived.
-
